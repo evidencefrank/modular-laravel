@@ -13,7 +13,7 @@
 
 namespace App\Models{
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $name
@@ -43,7 +43,7 @@ namespace App\Models{
 
 namespace Modules\Order\Models{
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $user_id
@@ -74,12 +74,12 @@ namespace Modules\Order\Models{
 
 namespace Modules\Order\Models{
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $order_id
  * @property int $product_id
- * @property int $price_in_cents
+ * @property int $product_price_in_cents
  * @property int $quantity
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -98,9 +98,22 @@ namespace Modules\Order\Models{
 	class OrderLine extends \Eloquent {}
 }
 
+namespace Modules\Payment{
+/**
+ * 
+ *
+ * @property-read \Modules\Order\Models\Order|null $order
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Payment query()
+ */
+	class Payment extends \Eloquent {}
+}
+
 namespace Modules\Product\Models{
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $quantity
@@ -124,7 +137,7 @@ namespace Modules\Product\Models{
 
 namespace Modules\Product\Models{
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $name
@@ -148,7 +161,7 @@ namespace Modules\Product\Models{
 
 namespace Modules\Shipment\Models{
 /**
- *
+ * 
  *
  * @property int $id
  * @property int $user_id
