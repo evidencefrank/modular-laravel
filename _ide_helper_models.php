@@ -1,4 +1,4 @@
-<?php /** @noinspection ALL */
+<?php
 
 // @formatter:off
 // phpcs:ignoreFile
@@ -53,6 +53,9 @@ namespace Modules\Order\Models{
  * @property string $payment_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Order\Models\OrderLine> $lines
+ * @property-read int|null $lines_count
+ * @property-read \App\Models\User|null $user
  * @method static \Modules\Order\Database\Factories\OrderFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Order newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Order newQuery()
@@ -76,7 +79,7 @@ namespace Modules\Order\Models{
  * @property int $id
  * @property int $order_id
  * @property int $product_id
- * @property int $product_price_in_cents
+ * @property int $price_in_cents
  * @property int $quantity
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
