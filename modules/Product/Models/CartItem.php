@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace Modules\Product\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Product\Database\Factories\CartItemFactory;
 
 class CartItem extends Model
 {
@@ -20,4 +21,9 @@ class CartItem extends Model
         'product_id' => 'integer',
         'user_id' => 'integer'
     ];
+
+    protected static function newFactory(): CartItemFactory
+    {
+        return CartItemFactory::new();
+    }
 }

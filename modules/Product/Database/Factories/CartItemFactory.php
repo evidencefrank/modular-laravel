@@ -1,14 +1,17 @@
 <?php
 
-namespace Database\Factories;
+namespace Modules\Product\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Modules\Product\Models\CartItem;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\Modules\Order\Models\Order>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\Modules\Product\Models\CartItem>
  */
-class OrderFactory extends Factory
+class CartItemFactory extends Factory
 {
+    protected $model = CartItem::class;
+
     /**
      * Define the model's default state.
      *
