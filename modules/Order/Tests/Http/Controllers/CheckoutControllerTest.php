@@ -30,7 +30,7 @@ class CheckoutControllerTest extends OrderTestCase
         $paymentToken = PayBuddy::validToken();
 
         $response = $this->actingAs($user)
-            ->post(route('order::checkout', [
+            ->postJson(route('order::checkout', [
                 'payment_token' => $paymentToken,
                 'products' => [
                     ['id' => $products->first()->id, 'quantity' => 1],
@@ -38,9 +38,13 @@ class CheckoutControllerTest extends OrderTestCase
                 ]
             ]));
 
-        $response->assertStatus(201);
-
         $order = Order::query()->latest('id')->first();
+
+        $response->assertStatus(201)
+            ->assertJson([
+                'order_url' => $order->url()
+            ]);
+
 
         // Order
         $this->assertTrue($order->user->is($user));
