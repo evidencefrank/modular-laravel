@@ -2,18 +2,20 @@
 
 namespace Modules\Order\Actions;
 
-use Modules\Order\Exceptions\PaymentFailedException;
+use Illuminate\Database\DatabaseManager;
 use Modules\Order\Models\Order;
+use Modules\Payment\Actions\CreateActionsForOrder;
 use Modules\Payment\PayBuddy;
 use Modules\Product\CartItem;
 use Modules\Product\CartItemCollection;
 use Modules\Product\Warehouse\ProductStockManager;
-use RuntimeException;
 
 class PurchaseItems
 {
     public function __construct(
         protected ProductStockManager $productStockManager,
+        protected CreateActionsForOrder $createActionsForOrder,
+        protected DatabaseManager $databaseManager
     )
     {}
 
@@ -23,39 +25,36 @@ class PurchaseItems
      * @param string $paymentToken
      * @param int $userId
      * @return Order
+     * @throws \Throwable
      */
     public function handle(CartItemCollection $items, PayBuddy $paymentProvider, string $paymentToken, int $userId): Order
     {
         $orderTotalInCents = $items->totalInCents();
-        try {
-            $charge = $paymentProvider->charge($paymentToken, $orderTotalInCents, 'Modules Order');
-        }catch (RuntimeException){
-            throw PaymentFailedException::dueToInvalidPaymentToken();
-        }
 
-        $order = Order::query()->create([
-            'status' => 'completed',
-            'total_in_cents' => $orderTotalInCents,
-            'user_id' => $userId,
-        ]);
+        return $this->databaseManager->transaction(function () use ($items, $orderTotalInCents, $userId, $paymentProvider, $paymentToken) {
+            $order = Order::query()->create([
+                'status' => 'completed',
+                'total_in_cents' => $orderTotalInCents,
+                'user_id' => $userId,
+            ]);
 
-        $order->lines()->createMany($items->items()->map(function (CartItem $cartItem) {
-            $this->productStockManager->decrement($cartItem->product->id, $cartItem->quantity);
-            return [
-                'product_id' => $cartItem->product->id,
-                'product_price_in_cents' => $cartItem->product->priceInCents,
-                'quantity' => $cartItem->quantity,
-            ];
-        }));
+            $order->lines()->createMany($items->items()->map(function (CartItem $cartItem) {
+                $this->productStockManager->decrement($cartItem->product->id, $cartItem->quantity);
+                return [
+                    'product_id' => $cartItem->product->id,
+                    'product_price_in_cents' => $cartItem->product->priceInCents,
+                    'quantity' => $cartItem->quantity,
+                ];
+            }));
 
-        $order->payments()->create([
-            'total_in_cents' => $orderTotalInCents,
-            'status' => 'paid',
-            'payment_gateway' => 'PayBuddy',
-            'payment_id' => $charge['id'],
-            'user_id' => $userId,
-        ]);
-
-        return $order->refresh();
+            $this->createActionsForOrder->handle(
+                $order->id,
+                $userId,
+                $orderTotalInCents,
+                $paymentProvider,
+                $paymentToken
+            );
+            return $order;
+        });
     }
 }
