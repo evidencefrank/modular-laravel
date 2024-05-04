@@ -2,11 +2,13 @@
 
 namespace Modules\Order\Actions;
 
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\DatabaseManager;
+use Modules\Order\Events\OrderFullfilled;
+use Modules\Order\Mail\OrderReceived;
 use Modules\Order\Models\Order;
 use Modules\Payment\Actions\CreateActionsForOrder;
 use Modules\Payment\PayBuddy;
-use Modules\Product\CartItem;
 use Modules\Product\CartItemCollection;
 use Modules\Product\Warehouse\ProductStockManager;
 
@@ -15,7 +17,8 @@ class PurchaseItems
     public function __construct(
         protected ProductStockManager $productStockManager,
         protected CreateActionsForOrder $createActionsForOrder,
-        protected DatabaseManager $databaseManager
+        protected DatabaseManager $databaseManager,
+        protected Dispatcher $events
     )
     {}
 
@@ -27,34 +30,30 @@ class PurchaseItems
      * @return Order
      * @throws \Throwable
      */
-    public function handle(CartItemCollection $items, PayBuddy $paymentProvider, string $paymentToken, int $userId): Order
+    public function handle(CartItemCollection $items, PayBuddy $paymentProvider, string $paymentToken, int $userId, string $userEmail): Order
     {
-        $orderTotalInCents = $items->totalInCents();
+        /** @var Order $order */
+        $order = $this->databaseManager->transaction(function () use ($items, $userId, $paymentProvider, $paymentToken) {
 
-        return $this->databaseManager->transaction(function () use ($items, $orderTotalInCents, $userId, $paymentProvider, $paymentToken) {
-            $order = Order::query()->create([
-                'status' => 'completed',
-                'total_in_cents' => $orderTotalInCents,
-                'user_id' => $userId,
-            ]);
-
-            $order->lines()->createMany($items->items()->map(function (CartItem $cartItem) {
-                $this->productStockManager->decrement($cartItem->product->id, $cartItem->quantity);
-                return [
-                    'product_id' => $cartItem->product->id,
-                    'product_price_in_cents' => $cartItem->product->priceInCents,
-                    'quantity' => $cartItem->quantity,
-                ];
-            }));
+            $order = Order::startForUser($userId);
+            $order->addLinesFromCartItems($items);
+            $order->fulFill();
 
             $this->createActionsForOrder->handle(
                 $order->id,
                 $userId,
-                $orderTotalInCents,
+                $items->totalInCents(),
                 $paymentProvider,
                 $paymentToken
             );
+
             return $order;
         });
+
+        $this->events->dispatch(
+            new OrderFullfilled($order->id, $order->total_in_cents, $order->localizedTotal(), $items, $userId, $userEmail)
+        );
+
+        return $order;
     }
 }

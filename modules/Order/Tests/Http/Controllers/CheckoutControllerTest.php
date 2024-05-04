@@ -5,6 +5,8 @@ namespace Modules\Order\Tests\Http\Controllers;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\Mail;
+use Modules\Order\Mail\OrderReceived;
 use Modules\Order\Models\Order;
 use Modules\Order\Tests\OrderTestCase;
 use Modules\Payment\PayBuddy;
@@ -19,6 +21,7 @@ class CheckoutControllerTest extends OrderTestCase
     public function it_successfully_creates_an_order(): void
     {
         $this->withoutExceptionHandling();
+        Mail::fake();
         $user = UserFactory::new()->create();
         $products = ProductFactory::new()->count(2)->create(
             new Sequence(
@@ -44,6 +47,10 @@ class CheckoutControllerTest extends OrderTestCase
             ->assertJson([
                 'order_url' => $order->url()
             ]);
+
+        Mail::assertSent(OrderReceived::class, function (OrderReceived $mail) use ($user) {
+            return $mail->hasTo($user->email);
+        });
 
 
         // Order

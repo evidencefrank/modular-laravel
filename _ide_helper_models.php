@@ -53,8 +53,11 @@ namespace Modules\Order\Models{
  * @property string $payment_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Modules\Payment\Payment|null $lastPayment
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Order\Models\OrderLine> $lines
  * @property-read int|null $lines_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \Modules\Payment\Payment> $payments
+ * @property-read int|null $payments_count
  * @property-read \App\Models\User|null $user
  * @method static \Modules\Order\Database\Factories\OrderFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Order newModelQuery()

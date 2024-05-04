@@ -9,6 +9,15 @@ use RuntimeException;
 
 class CreateActionsForOrder
 {
+    /**
+     * @param int $orderId
+     * @param int $userId
+     * @param int $totalInCents
+     * @param PayBuddy $payBuddy
+     * @param string $paymentToken
+     * @return Payment
+     * @throws PaymentFailedException
+     */
     public function handle(
         int $orderId,
         int $userId,
