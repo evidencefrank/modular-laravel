@@ -6,10 +6,8 @@ use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\DatabaseManager;
 use Modules\Order\DTOs\OrderDto;
 use Modules\Order\Events\OrderFullfilled;
-use Modules\Order\Mail\OrderReceived;
 use Modules\Order\Models\Order;
 use Modules\Payment\Actions\CreateActionsForOrder;
-use Modules\Payment\PayBuddy;
 use Modules\Product\CartItemCollection;
 use Modules\Product\DTOs\PendingPayment;
 use Modules\Product\Warehouse\ProductStockManager;
@@ -27,10 +25,9 @@ class PurchaseItems
 
     /**
      * @param CartItemCollection $items
-     * @param PayBuddy $paymentProvider
-     * @param string $paymentToken
-     * @param int $userId
-     * @return Order
+     * @param PendingPayment $pendingPayment
+     * @param UserDto $user
+     * @return OrderDto
      * @throws \Throwable
      */
     public function handle(CartItemCollection $items, PendingPayment $pendingPayment , UserDto $user): OrderDto
@@ -46,7 +43,7 @@ class PurchaseItems
                 $order->id,
                 $user->id,
                 $items->totalInCents(),
-                $pendingPayment->provider,
+                $pendingPayment->paymentGateway,
                 $pendingPayment->paymentToken
             );
 

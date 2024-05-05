@@ -9,7 +9,8 @@ use Illuminate\Support\Facades\Mail;
 use Modules\Order\Mail\OrderReceived;
 use Modules\Order\Models\Order;
 use Modules\Order\Tests\OrderTestCase;
-use Modules\Payment\PayBuddy;
+use Modules\Payment\PayBuddySdk;
+use Modules\Payment\PaymentProvider;
 use Modules\Product\Database\Factories\ProductFactory;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -30,7 +31,7 @@ class CheckoutControllerTest extends OrderTestCase
             )
         );
 
-        $paymentToken = PayBuddy::validToken();
+        $paymentToken = PayBuddySdk::validToken();
 
         $response = $this->actingAs($user)
             ->postJson(route('order::checkout', [
@@ -61,7 +62,7 @@ class CheckoutControllerTest extends OrderTestCase
         // Payment
         $payment = $order->lastPayment;
         $this->assertEquals('paid', $payment->status);
-        $this->assertEquals('PayBuddy', $payment->payment_gateway);
+        $this->assertEquals(PaymentProvider::PayBuddy, $payment->payment_gateway);
         $this->assertEquals(36, strlen($payment->payment_id));
         $this->assertEquals(60000, $payment->total_in_cents);
         $this->assertTrue($payment->user->is($user));
@@ -88,7 +89,7 @@ class CheckoutControllerTest extends OrderTestCase
     {
         $user = UserFactory::new()->create();
         $product = ProductFactory::new()->create();
-        $paymentToken = PayBuddy::invalidToken();
+        $paymentToken = PayBuddySdk::invalidToken();
 
         $response = $this->actingAs($user)
             ->postJson(route('order::checkout', [

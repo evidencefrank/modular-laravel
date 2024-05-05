@@ -2,19 +2,18 @@
 
 namespace Modules\Product\DTOs;
 
-use Modules\Payment\PayBuddy;
+use Modules\Payment\PaymentGateway;
 
 readonly class PendingPayment
 {
 
     /**
-     * @param PayBuddy $provider
+     * @param PaymentGateway $paymentGateway
      * @param string $paymentToken
      */
     public function __construct(
-        public PayBuddy $provider,
+        public PaymentGateway $paymentGateway,
         public string $paymentToken
     )
-    {
-    }
+    {}
 }
