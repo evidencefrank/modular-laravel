@@ -7,7 +7,7 @@ use Illuminate\Database\DatabaseManager;
 use Modules\Order\Contracts\OrderDto;
 use Modules\Order\Order;
 use Modules\Payment\Actions\CreateActionsForOrder;
-use Modules\Product\CartItemCollection;
+use Modules\Product\Collections\CartItemCollection;
 use Modules\Product\DTOs\PendingPayment;
 use Modules\Product\Warehouse\ProductStockManager;
 use Modules\User\UserDto;

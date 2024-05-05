@@ -2,7 +2,7 @@
 
 namespace Modules\Product\Providers;
 
-use \Illuminate\Foundation\Support\Providers\RouteServiceProvider as BaseRouteServiceProvider;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as BaseRouteServiceProvider;
 use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends BaseRouteServiceProvider
@@ -11,7 +11,7 @@ class RouteServiceProvider extends BaseRouteServiceProvider
     {
         $this->routes(function () {
             Route::middleware('web')
-                ->group(__DIR__ . '/../routes.php');
+                ->group(__DIR__ . '/../Http/routes.php');
         });
     }
 }

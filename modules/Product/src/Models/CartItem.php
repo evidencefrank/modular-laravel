@@ -4,7 +4,7 @@ namespace Modules\Product\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Product\Database\Factories\CartItemFactory;
+use Modules\Product\database\factories\CartItemFactory;
 
 class CartItem extends Model
 {

@@ -6,7 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 use Modules\Payment\Exceptions\PaymentFailedException;
 use Modules\Payment\PaymentGateway;
-use Modules\Product\CartItemCollection;
+use Modules\Product\Collections\CartItemCollection;
 use Modules\Product\DTOs\PendingPayment;
 use Modules\User\UserDto;
 
