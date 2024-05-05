@@ -26,6 +26,13 @@ readonly class CartItemCollection
         return new self($cartItems);
     }
 
+    public static function fromProduct(ProductDto $product, int $quantity = 1): CartItemCollection
+    {
+        return new self(collect([
+            new CartItem($product, $quantity)
+        ]));
+    }
+
     /**
      * @return int
      */

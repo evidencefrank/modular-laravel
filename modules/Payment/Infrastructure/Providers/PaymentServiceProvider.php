@@ -3,6 +3,8 @@
 namespace Modules\Payment\Infrastructure\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Modules\Payment\Actions\CreatePaymentForOrder;
+use Modules\Payment\Actions\CreatePaymentForOrderInterface;
 use Modules\Payment\PayBuddyGateway;
 use Modules\Payment\PayBuddySdk;
 use Modules\Payment\PaymentGateway;
@@ -16,5 +18,7 @@ class PaymentServiceProvider extends ServiceProvider
         $this->app->bind(PaymentGateway::class, fn() => new PayBuddyGateway(
             $this->app->make(PayBuddySdk::class)
         ));
+
+        $this->app->bind(CreatePaymentForOrderInterface::class, fn() => new CreatePaymentForOrder());
     }
 }

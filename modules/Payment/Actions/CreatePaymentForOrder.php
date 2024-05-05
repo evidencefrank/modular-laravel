@@ -8,7 +8,7 @@ use Modules\Payment\PaymentDetails;
 use Modules\Payment\PaymentGateway;
 use RuntimeException;
 
-class CreateActionsForOrder
+class CreatePaymentForOrder implements CreatePaymentForOrderInterface
 {
     /**
      * @param int $orderId
