@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\Order\Database\Factories;
+namespace Modules\Order\Infrastructure\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\Order\Models\OrderLine;
+use Modules\Order\OrderLine;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\Modules\Order\Models\OrderLine>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\Modules\Order\OrderLine>
  */
 class OrderLineFactory extends Factory
 {

@@ -2,7 +2,7 @@
 
 namespace Modules\Product\Events;
 
-use Modules\Order\Events\OrderFullfilled;
+use Modules\Order\Checkout\OrderFullfilled;
 use Modules\Product\Warehouse\ProductStockManager;
 
 class DecreaseProductStock
