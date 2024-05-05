@@ -7,12 +7,10 @@ use Illuminate\Validation\ValidationException;
 use Modules\Order\Actions\PurchaseItems;
 use Modules\Order\Exceptions\PaymentFailedException;
 use Modules\Order\Http\Requests\CheckoutRequest;
-use Modules\Order\Models\Order;
 use Modules\Payment\PayBuddy;
-use Modules\Product\CartItem;
 use Modules\Product\CartItemCollection;
-use Modules\Product\Warehouse\ProductStockManager;
-use RuntimeException;
+use Modules\Product\DTOs\PendingPayment;
+use Modules\User\UserDto;
 
 class CheckoutController
 {
@@ -22,20 +20,16 @@ class CheckoutController
     {}
 
     /**
-     * @throws ValidationException
+     * @throws ValidationException|\Throwable
      */
     public function __invoke(CheckoutRequest $request): JsonResponse
     {
         $cartItems = CartItemCollection::fromCheckoutRequest($request->input('products'));
+        $pendingPayment = new PendingPayment(PayBuddy::make(), $request->input('payment_token'));
+        $userDto = UserDto::fromEloquentModel($request->user());
 
         try {
-            $order = $this->purchaseItems->handle(
-                $cartItems,
-                PayBuddy::make(),
-                $request->input('payment_token'),
-                $request->user()->id,
-                userEmail: $request->user()->email
-            );
+            $order = $this->purchaseItems->handle($cartItems, $pendingPayment, $userDto);
         } catch (PaymentFailedException) {
             throw ValidationException::withMessages([
                 'payment_token' => 'We could not complete your payment.'
@@ -43,7 +37,7 @@ class CheckoutController
         }
 
         return response()->json([
-            'order_url' => $order->url()
+            'order_url' => $order->url
         ], 201);
     }
 }

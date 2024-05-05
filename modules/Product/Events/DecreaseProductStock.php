@@ -13,8 +13,8 @@ class DecreaseProductStock
 
     public function handle(OrderFullfilled $event): void
     {
-        foreach ($event->cartItems->items() as $cartItem) {
-            $this->productStockManager->decrement($cartItem->product->id, $cartItem->quantity);
+        foreach ($event->order->lines as $cartItem) {
+            $this->productStockManager->decrement($cartItem->productId, $cartItem->quantity);
         }
     }
 }

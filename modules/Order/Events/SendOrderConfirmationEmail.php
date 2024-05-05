@@ -9,7 +9,7 @@ class SendOrderConfirmationEmail
 {
     public function handle(OrderFullfilled $event): void
     {
-        Mail::to($event->userEmail)
-            ->send(new OrderReceived($event->localizedTotal));
+        Mail::to($event->user->email)
+            ->send(new OrderReceived($event->order->localizedTotal));
     }
 }

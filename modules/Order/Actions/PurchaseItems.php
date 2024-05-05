@@ -4,13 +4,16 @@ namespace Modules\Order\Actions;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Database\DatabaseManager;
+use Modules\Order\DTOs\OrderDto;
 use Modules\Order\Events\OrderFullfilled;
 use Modules\Order\Mail\OrderReceived;
 use Modules\Order\Models\Order;
 use Modules\Payment\Actions\CreateActionsForOrder;
 use Modules\Payment\PayBuddy;
 use Modules\Product\CartItemCollection;
+use Modules\Product\DTOs\PendingPayment;
 use Modules\Product\Warehouse\ProductStockManager;
+use Modules\User\UserDto;
 
 class PurchaseItems
 {
@@ -30,29 +33,27 @@ class PurchaseItems
      * @return Order
      * @throws \Throwable
      */
-    public function handle(CartItemCollection $items, PayBuddy $paymentProvider, string $paymentToken, int $userId, string $userEmail): Order
+    public function handle(CartItemCollection $items, PendingPayment $pendingPayment , UserDto $user): OrderDto
     {
-        /** @var Order $order */
-        $order = $this->databaseManager->transaction(function () use ($items, $userId, $paymentProvider, $paymentToken) {
+        /** @var OrderDto $order */
+        $order = $this->databaseManager->transaction(function () use ($items, $user, $pendingPayment) {
 
-            $order = Order::startForUser($userId);
+            $order = Order::startForUser($user->id);
             $order->addLinesFromCartItems($items);
             $order->fulFill();
 
             $this->createActionsForOrder->handle(
                 $order->id,
-                $userId,
+                $user->id,
                 $items->totalInCents(),
-                $paymentProvider,
-                $paymentToken
+                $pendingPayment->provider,
+                $pendingPayment->paymentToken
             );
 
-            return $order;
+            return OrderDto::fromEloquentModel($order);
         });
 
-        $this->events->dispatch(
-            new OrderFullfilled($order->id, $order->total_in_cents, $order->localizedTotal(), $items, $userId, $userEmail)
-        );
+        $this->events->dispatch(new OrderFullfilled($order, $user) );
 
         return $order;
     }
